@@ -5,6 +5,10 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
 
+const doesExist = function (username) {
+  return users.some(user => user.username === username); // use some() to filter strictly equal
+}
+
 
 // New User registration
 public_users.post("/register", function (req,res) {
