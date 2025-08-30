@@ -5,25 +5,25 @@ let users = require("../booksdb.js").users;
 
 const regd_users = express.Router();
 
-let usersAuth = []; // This would typically be a database
+let usersAuth = []; // List for course purpose. List of dict
 
 const isValid = (username) => {
-  // Check if username exists in usersAuth array
+  // Check if username exists in usersAuth list
   return usersAuth.some(user => user.username === username);
 }
 
 const authenticatedUser = (username, password) => {
-  // Check if username and password match
+  // Check if username and password correspond
   const user = usersAuth.find(user => user.username === username && user.password === password);
   return user !== undefined;
 }
 
-// Only registered users can login
+// Block access for unregistered users
 regd_users.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(404).json({ message: "Error logging in" });
+    return res.status(404).json({ message: "Error in the login process" });
   }
 
   if (authenticatedUser(username, password)) {
@@ -36,7 +36,7 @@ regd_users.post("/login", (req, res) => {
     }
     return res.status(200).send("User successfully logged in");
   } else {
-    return res.status(208).json({ message: "Invalid Login. Check username and password" });
+    return res.status(208).json({ message: "Couldn't login. Check username and password" });
   }
 });
 
@@ -47,7 +47,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const username = req.session.authorization.username;
 
   if (!review) {
-    return res.status(400).json({ message: "Review is required" });
+    return res.status(400).json({ message: "Review field is empty!" });
   }
 
   // Find book by ISBN
@@ -60,7 +60,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   }
 
   if (!bookKey) {
-    return res.status(404).json({ message: "Book not found" });
+    return res.status(404).json({ message: "Couldn't find book by ISBN" });
   }
 
   // Add or modify the review
@@ -71,7 +71,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   books[bookKey].reviews[username] = review;
   
   return res.status(200).json({ 
-    message: `Review for book with ISBN ${isbn} added/updated successfully`,
+    message: `Review for book with ISBN ${isbn} updated successfully!`,
     reviews: books[bookKey].reviews
   });
 });
@@ -91,17 +91,17 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
   }
 
   if (!bookKey) {
-    return res.status(404).json({ message: "Book not found" });
+    return res.status(404).json({ message: "Couldn't find a book" });
   }
 
   if (books[bookKey].reviews && books[bookKey].reviews[username]) {
     delete books[bookKey].reviews[username];
     return res.status(200).json({ 
-      message: `Review for book with ISBN ${isbn} deleted successfully`,
+      message: `Review for book with ISBN ${isbn} successfully deleted!`,
       reviews: books[bookKey].reviews
     });
   } else {
-    return res.status(404).json({ message: "Review not found or unauthorized" });
+    return res.status(404).json({ message: "Review not found or access not granted" });
   }
 });
 
