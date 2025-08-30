@@ -5,39 +5,96 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
 
-public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+
+// New User registration
+public_users.post("/register", function (req,res) {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (username && password) {
+    if (!doesExist(username)) {
+      users.push({'username': username, 'password': password});
+      return res.status(200).json({message: 'Success: User registered. You can now login.'});
+    } else {
+      return res.status(403).json({message: 'Error: User already exists!'});
+    }
+  }
+
+  return res.status(404).json({message: "Error: couldn't register user."});
 });
 
-// Get the book list available in the shop
+// Retrieve book list available on the shop and send as stringified
 public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  
+  res.send(JSON.stringify(books, null, 4));
 });
 
-// Get book details based on ISBN
+// Retrieve books filtering bi ISBN (no filter method required)
 public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+
+  // iterate in dict books
+
+  for (let book in books) {
+    if (books[book].isbn === isbn) {
+      return res.send(books[book]);
+    }
+  }
+
+  return res.status(404).json({message: "Couldn't find book"});
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const author = req.params.author; // Get the specified parameter from body
+  const filteredBooks = [];
+
+  // Iterate to get all books from filtered author
+
+  for (let book in books) {
+    if (books[book].author.toLowerCase() === author.toLowerCase()) {
+      filteredBooks.push(books[book]);
+    }
+  }
+  // If at least one is found, aka if at least one ended up in the list
+  if (filteredBooks.length > 0) {
+    return res.send(filteredBooks);
+  } else {
+    return res.status(404).json({message: "Couldn't find any book by this author."})
+  }
+  
 });
 
-// Get all books based on title
+// Retrieve books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const byTitle = req.params.title;
+  const filteredBooks = [];
+
+  // Iterate to get all books by title
+  for (let book in books) {
+    if (books[book].title.toLowerCase().includes(title.toLowerCase())) {
+      filteredBooks.push(books[book]);
+    }
+  }
+
+  if (filteredBooks.length > 0) {
+    return res.send(filteredBooks);
+  } else {
+    return res.status(404).json({message: "Couldn't find any book by this title"});
+  }
+  
 });
 
-//  Get book review
+//  Retrieve book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const isbn = req.params.isbn;
+
+  // Iterate by isbn in dict
+  for (let book in books) {
+    if (books[book].isbn === isbn) {
+      return res.send(books[book].reviews);
+    }
+  }
 });
 
 module.exports.general = public_users;
