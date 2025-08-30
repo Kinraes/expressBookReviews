@@ -11,9 +11,10 @@ const doesExist = function (username) {
 
 
 // New User registration
-public_users.post("/register", function (req,res) {
+public_users.post("/register", function(req,res) {
   const username = req.body.username;
   const password = req.body.password;
+  
 
   if (username && password) {
     if (!doesExist(username)) {
@@ -24,7 +25,8 @@ public_users.post("/register", function (req,res) {
     }
   }
 
-  return res.status(404).json({message: "Error: couldn't register user."});
+  return res.status(404).json({message: "Error: Couldn't register user."});
+   
 });
 
 // Retrieve book list available on the shop and send as stringified
@@ -33,20 +35,21 @@ public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books, null, 4));
 });
 
-// Retrieve books filtering bi ISBN (no filter method required)
-public_users.get('/isbn/:isbn',function (req, res) {
-  const isbn = req.params.isbn;
-
-  // iterate in dict books
-
-  for (let book in books) {
-    if (books[book].isbn === isbn) {
-      return res.send(books[book]);
+// Retrieve book by on ISBN
+public_users.get('/isbn/:isbn', function (req, res) {
+    const isbn = req.params.isbn;
+    
+    // Iterate bookslist by ISBN
+    for (let book in books) {
+      if (books[book].isbn === isbn) {
+        return res.send(books[book]);
+      } else {
+        return res.status(404).json({ message: "Couldn't find book by ISBN" });
+      }
     }
-  }
-
-  return res.status(404).json({message: "Couldn't find book"});
- });
+    
+    
+  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
@@ -71,7 +74,7 @@ public_users.get('/author/:author',function (req, res) {
 
 // Retrieve books based on title
 public_users.get('/title/:title',function (req, res) {
-  const byTitle = req.params.title;
+  const title = req.params.title;
   const filteredBooks = [];
 
   // Iterate to get all books by title
