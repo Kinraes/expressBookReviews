@@ -16,16 +16,17 @@ public_users.post("/register", function(req,res) {
   const password = req.body.password;
   
 
-  if (username && password) {
+  if (username.length> 0 && password.length > 0) {
     if (!doesExist(username)) {
       users.push({'username': username, 'password': password});
       return res.status(200).json({message: 'Success: User registered. You can now login.'});
     } else {
       return res.status(403).json({message: 'Error: User already exists!'});
     }
-  }
+  } else {
 
-  return res.status(404).json({message: "Error: Couldn't register user."});
+      return res.status(404).json({message: "Error: Couldn't register user."});
+  }
    
 });
 
