@@ -5,38 +5,48 @@ let books = require("../router/booksdb.js").books;
 
 const regd_users = express.Router();
 
-let usersAuth = []; // List for course purpose. List of dict
+let usersAuth = []; // List for course purpose. List of dicts
 
-const isValid = (username) => {
+const isValid = function (username) {
   // Check if username exists in usersAuth list
-  return usersAuth.some(user => user.username === username);
+  // True if exists
+
+  for (let user in usersAuth) {
+    if (usersAuth[user].username === username) {
+      return true;
+      break;
+    } else {
+      return false;
+      break;
+    }
+  }
+
 }
 
-const authenticatedUser = (username, password) => {
-  // Check if username and password correspond
+const authenticatedUser = function (username, password) {
+  // function for the /login endpoint. Returns true or false if matching username and password
   const user = usersAuth.find(user => user.username === username && user.password === password);
   return user !== undefined;
 }
 
-// Block access for unregistered users
+// Login endpoint
 regd_users.post("/login", (req, res) => {
-  const { username, password } = req.body;
+  const username = req.body.username;
+  const password = req.body.password;
+
+  console.log('Login with: '+ username + ' ' + password);
 
   if (!username || !password) {
-    return res.status(404).json({ message: "Error in the login process" });
+    return res.status(401).json({message: "Error: please provide valid username and password"});
   }
 
   if (authenticatedUser(username, password)) {
-    let accessToken = jwt.sign({
-      data: password
-    }, 'access', { expiresIn: 60 * 60 });
+    let accessToken = jwt.sign({data: password}, 'access', {expiresIn: 60 * 60});
 
-    req.session.authorization = {
-      accessToken, username
-    }
+    req.session.authorization = {accessToken, username};
     return res.status(200).send("User successfully logged in");
   } else {
-    return res.status(408).json({ message: "Couldn't login. Check username and password" });
+    return res.status(408).json({message: "Couldn't login. Check username and password"});
   }
 });
 
@@ -47,33 +57,35 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const username = req.session.authorization.username;
 
   if (!review) {
-    return res.status(400).json({ message: "Review field is empty!" });
+    return res.status(400).json({message: "Please provide a review in Review field."});
   }
 
   // Find book by ISBN
-  let bookKey = null;
-  for (let key in books) {
-    if (books[key].isbn === isbn) {
-      bookKey = key;
-      break;
+
+  let matchingBooks = null;
+
+  for (let book in books) {
+    if (books[book].isbn === isbn) {
+      
+      matchingBooks = books[book];
+      return  matchingBooks;
+
+    } else {
+
+      return res.status(404).json({message: "Couldn't find book by ISBN"});
+
     }
   }
 
-  if (!bookKey) {
-    return res.status(404).json({ message: "Couldn't find book by ISBN" });
-  }
 
-  // Add or modify the review
-  if (!books[bookKey].reviews) {
-    books[bookKey].reviews = {};
+  // Add/Modify review of returned book
+  if (!matchingBooks.reviews) {
+    matchingBooks.reviews = {};
   }
   
-  books[bookKey].reviews[username] = review;
+  matchingBooks.reviews[username] = review;
   
-  return res.status(200).json({ 
-    message: `Review for book with ISBN ${isbn} updated successfully!`,
-    reviews: books[bookKey].reviews
-  });
+  return res.status(200).json({message: `Review for book with ISBN ${isbn} updated successfully!`, reviews: matchingBooks.reviews});
 });
 
 // Delete a book review
@@ -82,26 +94,23 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
   const username = req.session.authorization.username;
 
   // Find book by ISBN
-  let bookKey = null;
-  for (let key in books) {
-    if (books[key].isbn === isbn) {
-      bookKey = key;
+  let matchingBooks = null;
+  for (let book in books) {
+    if (books[book].isbn === isbn) {
+      matchingBooks = book;
       break;
     }
   }
 
-  if (!bookKey) {
-    return res.status(404).json({ message: "Couldn't find a book" });
+  if (!matchingBooks) {
+    return res.status(404).json({ message: "Couldn't find a book with given ISBN" });
   }
 
-  if (books[bookKey].reviews && books[bookKey].reviews[username]) {
-    delete books[bookKey].reviews[username];
-    return res.status(200).json({ 
-      message: `Review for book with ISBN ${isbn} successfully deleted!`,
-      reviews: books[bookKey].reviews
-    });
+  if (books[matchingBooks].reviews && books[matchingBooks].reviews[username]) {
+    delete books[matchingBooks].reviews[username];
+    return res.status(200).json({message: `Review for book with ISBN ${isbn} successfully deleted!`, reviews: books[matchingBooks].reviews});
   } else {
-    return res.status(404).json({ message: "Review not found or access not granted" });
+    return res.status(404).json({message: "Review not found or access not granted"});
   }
 });
 

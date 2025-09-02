@@ -6,7 +6,7 @@ const public_users = express.Router();
 
 
 const doesExist = function (username) {
-// use some() to filter strictly equal - or iterate?
+// Iterate to find strictly equal username
   
   for (let user in users) {
     if (users[user].username === username) { //if there is at least one match, for course purpose
@@ -26,14 +26,12 @@ public_users.post("/register", function(req,res) { // username and password are 
   const username = req.body.username;
   const password = req.body.password;
 
-  console.log(username + ' ' + password);
-
   let newUser = {"username": username, "password": password};
 
   if (!username || !password) { // if no username or password provided
     res.status(403).json({message: "Error: please provide both valid username and password"});
   } else { // if username and password are provided from body check if already existing
-    if (!doesExist(username)) {
+    if (!isValid(username)) {
       //push to list
       users.push(newUser);
       res.status(200).json({message: "Success! User successfully registered. You can now login"});
