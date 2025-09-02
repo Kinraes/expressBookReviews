@@ -9,14 +9,16 @@ const doesExist = function (username) {
 // use some() to filter strictly equal - or iterate?
   
   for (let user in users) {
-    if (users[user] === users.username) { //if there is at least one match, for course purpose
+    if (users[user].username === username) { //if there is at least one match, for course purpose
       return true
+      break;
     } else {
       return false;
+      break;
     }
   }
 
-}
+};
 
 
 // New User registration
@@ -24,22 +26,23 @@ public_users.post("/register", function(req,res) { // username and password are 
   const username = req.body.username;
   const password = req.body.password;
 
-  console.log(username + '' + password);
+  console.log(username + ' ' + password);
 
   let newUser = {"username": username, "password": password};
 
   if (!username || !password) { // if no username or password provided
-    res.send(403).json({message: "Error: please provide both valid username and password"});
+    res.status(403).json({message: "Error: please provide both valid username and password"});
   } else { // if username and password are provided from body check if already existing
-    if (doesExist(username) == false) {
+    if (!doesExist(username)) {
       //push to list
       users.push(newUser);
-      res.send(200).json({message: "Success! User successfully registered. You can now login"});
+      res.status(200).json({message: "Success! User successfully registered. You can now login"});
     } else {
-      res.send(400).json({message: "Error: found already matching user"});
+      res.status(400).json({message: "Error: found already matching user"});
     }
   }
 
+  console.log(users);
 
 });
 
@@ -65,7 +68,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
     if (matchingBooks.length > 0) {
       res.send(matchingBooks);
     } else {
-      res.send(404).json({message: "No books found by this ISBN"});
+      res.status(404).json({message: "No books found by this ISBN"});
     }
 
   });
@@ -86,7 +89,7 @@ public_users.get('/author/:author',function (req, res) {
   if (filteredBooks.lenght > 0) { // if array is not empty
     res.send(filteredBooks);
   } else { // if not empty
-    res.send(404).json({message: "No books found by this author"});
+    res.status(404).json({message: "No books found by this author"});
   }
 
 
@@ -125,7 +128,7 @@ public_users.get('/review/:isbn',function (req, res) {
   if (revByIsbn.length > 0) {
     res.send(revByIsbn);
   } else {
-    res.send(404).json({message: "No reviews found by this ISBN"});
+    res.status(404).json({message: "No reviews found by this ISBN"});
   }
 
 });

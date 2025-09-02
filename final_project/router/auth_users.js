@@ -36,7 +36,7 @@ regd_users.post("/login", (req, res) => {
     }
     return res.status(200).send("User successfully logged in");
   } else {
-    return res.status(208).json({ message: "Couldn't login. Check username and password" });
+    return res.status(408).json({ message: "Couldn't login. Check username and password" });
   }
 });
 
