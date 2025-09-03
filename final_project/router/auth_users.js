@@ -46,30 +46,34 @@ regd_users.post("/login", (req, res) => {
   if (!username || !password) {
     return res.status(401).json({message: "Error: please provide valid username and password"});
   }
-
+// If username and password are provided, proceed to authentication
   if (authenticatedUser(username, password)) {
+    // Generate a JWT token first
     let accessToken = jwt.sign({data: password}, 'access', {expiresIn: 60 * 60});
 
+// Store said token and associated username in session
+
     req.session.authorization = {accessToken, username};
+
     return res.status(200).send("User successfully logged in");
   } else {
     return res.status(408).json({message: "Couldn't login. Check username and password"});
   }
 });
 
-// Add a book review
+// Add a book review. It is a "retrieve by ISBN" and a PUT for registered users only.
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const review = req.query.review;
   const username = req.session.authorization.username;
 
-  if (!review) {
+  if (!review) { // stop here one moment: check if the book does have a review to update.
     return res.status(400).json({message: "Please provide a review in Review field."});
   }
 
   // Find book by ISBN
 
-  let matchingBooks = null;
+  let matchingBooks = null; // create an empty container to store matching book later. Will become object's type.
 
   for (let book in books) {
     if (books[book].isbn === isbn) {
@@ -79,7 +83,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
     } else {
 
-      return res.status(404).json({message: "Couldn't find book by ISBN"});
+      return res.status(404).json({message: "Couldn't find review by book's ISBN"});
 
     }
   }
@@ -96,7 +100,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 });
 
 // Delete a book review
-regd_users.delete("/auth/review/:isbn", (req, res) => {
+regd_users.delete("/auth/review/:isbn", function (req, res) {
   const isbn = req.params.isbn;
   const username = req.session.authorization.username;
 

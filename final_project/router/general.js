@@ -31,7 +31,7 @@ public_users.post("/register", function(req,res) { // username and password are 
   if (!username || !password) { // if no username or password provided
     res.status(403).json({message: "Error: please provide both valid username and password"});
   } else { // if username and password are provided from body check if already existing
-    if (!isValid(username)) {
+    if (!doesExist(username)) {
       //push to list
       users.push(newUser);
       res.status(200).json({message: "Success! User successfully registered. You can now login"});
@@ -40,7 +40,7 @@ public_users.post("/register", function(req,res) { // username and password are 
     }
   }
 
-  console.log(users);
+  // console.log(users); // remove the // for debug
 
 });
 
