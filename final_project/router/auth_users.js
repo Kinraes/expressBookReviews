@@ -17,17 +17,24 @@ const isValid = function (username) {
       break;
     } else {
       return false;
-      break;
+      break; // break not necessary, but I'll leave it there for reference.
     }
   }
 
 }
 
 const authenticatedUser = function (username, password) {
-  // function for the /login endpoint. Returns true or false if matching username and password
-  const user = usersAuth.find(user => user.username === username && user.password === password);
-  return user !== undefined;
-}
+  // function for the /login endpoint. Filter list, return true if found valid matching, false if not.
+  let validUsers = users.filter(function (user) {
+    return (user.username === username && user.password === password); // filter function and return single strictly equal match.
+  });
+
+  if (validUsers.length > 0) { // if returned match exists return true, otherwise false.
+    return true;
+  } else {
+    return false;
+  };
+};
 
 // Login endpoint
 regd_users.post("/login", (req, res) => {
