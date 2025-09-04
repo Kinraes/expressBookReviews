@@ -136,11 +136,18 @@ public_users.get("/", function (req, res) {
 
 public_users.get("/isbn/:isbn", function (req, res) {
   const isbn = req.params.isbn;
+  let matchingBooks = [];
   // Promise
+
+  for (let book in books) {
+    if (book[books].isbn === isbn) {
+      matchingBooks.push(books[book]);
+    }
+  }
 
   let isbnPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(books[isbn]);
+      resolve(matchingBooks);
     }, 10);
   });
   isbnPromise.then((message) => {
