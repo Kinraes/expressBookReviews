@@ -140,7 +140,7 @@ public_users.get("/isbn/:isbn", function (req, res) {
   // Promise
 
   for (let book in books) {
-    if (book[books].isbn === isbn) {
+    if (books[book].isbn === isbn) {
       matchingBooks.push(books[book]);
     }
   }
