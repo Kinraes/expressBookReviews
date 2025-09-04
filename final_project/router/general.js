@@ -44,71 +44,161 @@ public_users.post("/register", function(req,res) { // username and password are 
 
 });
 
-// Retrieve book list available on the shop and send as stringified
-public_users.get('/', function (req, res) {
-  res.send(JSON.stringify(books, null, 4));
-})
+// ----------------------SECTION FOR PART 1: Syncronous-----------------------------------------
 
-// Retrieve book by on ISBN
-public_users.get('/isbn/:isbn', function (req, res) {
-    const isbn = req.params.isbn;
-    let matchingBooks = [];
+// // Retrieve book list available on the shop and send as stringified
+// public_users.get('/', function (req, res) {
+//   res.send(JSON.stringify(books, null, 4));
+// })
+
+// // Retrieve book by on ISBN
+// public_users.get('/isbn/:isbn', function (req, res) {
+//     const isbn = req.params.isbn;
+//     let matchingBooks = [];
     
-    // Iterate bookslist by ISBN
-    for (let book in books) {
+//     // Iterate bookslist by ISBN
+//     for (let book in books) {
 
-      if (books[book].isbn === isbn) {
-        matchingBooks.push(books[book]);
-      }
+//       if (books[book].isbn === isbn) {
+//         matchingBooks.push(books[book]);
+//       }
 
-    };
+//     };
 
-    if (matchingBooks.length > 0) {
-      res.send(matchingBooks);
-    } else {
-      res.status(404).json({message: "No books found by this ISBN"});
-    }
+//     if (matchingBooks.length > 0) {
+//       res.send(matchingBooks);
+//     } else {
+//       res.status(404).json({message: "No books found by this ISBN"});
+//     }
 
-  });
+//   });
   
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  const author = req.params.author; // Get the specified param
-  const filteredBooks = [];
+// // Get book details based on author
+// public_users.get('/author/:author',function (req, res) {
+//   const author = req.params.author; // Get the specified param
+//   const filteredBooks = [];
 
-  // Iterate to get all books from filtered author
+//   // Iterate to get all books from filtered author
 
+//   for (let book in books) {
+//     if (books[book].author.toLowerCase() === author.toLowerCase()) { // toLowerCase() solves the problem of lowercase params
+//       filteredBooks.push(books[book]);
+//     } 
+//   }
+
+//   if (filteredBooks.lenght > 0) { // if array is not empty
+//     res.send(filteredBooks);
+//   } else { // if not empty
+//     res.status(404).json({message: "No books found by this author"});
+//   }
+
+
+// });
+
+// // Retrieve books based on title
+// public_users.get('/title/:title',function (req, res) {
+//   const title = req.params.title;
+//   const filteredBooks = [];
+
+//   // Iterate to get all books by title
+
+//   for (let book in books) {
+//     if (books[book].title.toLowerCase() === title.toLowerCase()) {
+//       filteredBooks.push(books[book]);
+      
+//     }
+//   }
+//   res.send(filteredBooks);
+
+// });
+
+//--------------------END OF PART 1: SYNCRONOUS-----------------------------------
+
+
+//---------------------PART 2: ASYNCRONOUS----------------------------------------
+
+// GET retrieve book list available
+
+public_users.get("/", function (req, res) {
+  let retrievePromise = new Promise(function (resolve, reject) {
+    setTimeout(() => {
+      resolve(books);
+    }, 0);
+  });
+
+  retrievePromise.then((message) => {
+    res.send(JSON.stringify(message, null, 4));
+  });
+});
+
+
+// GET retrieve books by ISBN
+
+public_users.get("/isbn/:isbn", function (req, res) {
+  const isbn = req.params.isbn;
+  // Promise
+
+  let isbnPromise = new Promise((reesolve, reject) => {
+    setTimeout(() => {
+      resolve(books[isbn]);
+    }, 0);
+  });
+  isbnPromise.then((message) => {
+    res.send(message);
+  });
+});
+
+
+// GET Retrieve books by author
+
+public_users.get("/author/:author", function (req, res) {
+  const author = req.params.author;
+  const filteredBooks = []; // Convenience empty temporary container array
+  
   for (let book in books) {
-    if (books[book].author.toLowerCase() === author.toLowerCase()) { // toLowerCase() solves the problem of lowercase params
+    if (books[book].author.toLowerCase() === author.toLowerCase()) {
       filteredBooks.push(books[book]);
-    } 
-  }
+    }
+  };
 
-  if (filteredBooks.lenght > 0) { // if array is not empty
-    res.send(filteredBooks);
-  } else { // if not empty
-    res.status(404).json({message: "No books found by this author"});
-  }
+  let authorPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(filteredBooks);
+    }, 0);
+  });
 
+  authorPromise.then((message) => {
+    res.send(message);
+  });
 
 });
 
-// Retrieve books based on title
-public_users.get('/title/:title',function (req, res) {
+
+// GET Retrieve books by title
+
+public_users.get("/title/:title", function (req, res) {
   const title = req.params.title;
   const filteredBooks = [];
 
-  // Iterate to get all books by title
-
   for (let book in books) {
     if (books[book].title.toLowerCase() === title.toLowerCase()) {
-      filteredBooks.push(books[book]);
-      
+      filteredBooks.push(book);
     }
   }
-  res.send(filteredBooks);
 
+  let titlePromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(filteredBooks);
+    }, 0);
+  });
+
+  titlePromise.then((message) => {
+    res.send(message);
+  });
 });
+
+//---------------END OF PART 2: ASYNCRONOUS---------------------------------------
+
 
 //  Retrieve book review
 public_users.get('/review/:isbn',function (req, res) {
