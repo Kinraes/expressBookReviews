@@ -123,7 +123,7 @@ public_users.get("/", function (req, res) {
   let retrievePromise = new Promise(function (resolve, reject) {
     setTimeout(() => {
       resolve(books);
-    }, 0);
+    }, 10);
   });
 
   retrievePromise.then((message) => {
@@ -138,10 +138,10 @@ public_users.get("/isbn/:isbn", function (req, res) {
   const isbn = req.params.isbn;
   // Promise
 
-  let isbnPromise = new Promise((reesolve, reject) => {
+  let isbnPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(books[isbn]);
-    }, 0);
+    }, 10);
   });
   isbnPromise.then((message) => {
     res.send(message);
@@ -164,7 +164,7 @@ public_users.get("/author/:author", function (req, res) {
   let authorPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(filteredBooks);
-    }, 0);
+    }, 10);
   });
 
   authorPromise.then((message) => {
@@ -189,7 +189,7 @@ public_users.get("/title/:title", function (req, res) {
   let titlePromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(filteredBooks);
-    }, 0);
+    }, 10);
   });
 
   titlePromise.then((message) => {
