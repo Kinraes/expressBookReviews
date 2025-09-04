@@ -25,7 +25,7 @@ const isValid = function (username) {
 
 const authenticatedUser = function (username, password) {
   // function for the /login endpoint. Filter list, return true if found valid matching, false if not.
-  let validUsers = users.filter(function (user) {
+  let validUsers = usersAuth.filter(function (user) {
     return (user.username === username && user.password === password); // filter function and return single strictly equal match.
   });
 
